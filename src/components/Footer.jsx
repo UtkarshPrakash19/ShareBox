@@ -13,7 +13,7 @@ export function Footer() {
         <Button
           variant="subtle"
           component={Anchor}
-          href="https://github.com/VaibhavKT20/ShareBox"
+          href="https://github.com/UtkarshPrakash19/ShareBox"
           target="_blank"
         >
           Github
