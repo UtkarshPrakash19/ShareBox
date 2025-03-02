@@ -11,69 +11,48 @@ import {
   ThemeIcon, // For adding styled icons with colors
 } from "@mantine/core";
 
-// Dropzone component to handle file drag and drop
-import { Dropzone } from "@mantine/dropzone";
+import { Dropzone } from "@mantine/dropzone"; // Dropzone component to handle file drag and drop
 
-// Hook for handling clipboard operations like copying text
-import { useClipboard } from "@mantine/hooks";
+import { useClipboard } from "@mantine/hooks"; // Hook for handling clipboard operations like copying text
 
-// Firebase functions for file storage management
-import { getStorage, ref } from "firebase/storage";
+import { getStorage, ref } from "firebase/storage"; // Firebase functions for file storage management
 
-// React and hooks to manage component state and side effects
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react"; // React and hooks to manage component state and side effects
 
-// Firebase hook for uploading files to storage
-import { useUploadFile } from "react-firebase-hooks/storage";
+import { useUploadFile } from "react-firebase-hooks/storage"; // Firebase hook for uploading files to storage
 
-// QRCode component to generate and display QR codes
-import QRCode from "react-qr-code";
+import QRCode from "react-qr-code"; // QRCode component to generate and display QR codes
 
-// Custom components for header and footer
-import { Footer } from "@/components/Footer";
-import { Header } from "@/components/Header";
+import { Footer } from "@/components/Footer"; // Custom Footer component
+import { Header } from "@/components/Header"; // Custom Header component
 
-// Firebase app configuration
-import { fbApp } from "@/db";
+import { fbApp } from "@/db"; // Firebase app configuration
 
-// Importing icons for upload and check actions
-import { IconUpload, IconCheck } from "@tabler/icons";
+import { IconUpload, IconCheck } from "@tabler/icons"; // Importing icons for upload and check actions
 
-// Random word generator for creating unique IDs for file uploads
-import randomWords from "random-words";
+import randomWords from "random-words"; // Random word generator for creating unique IDs for file uploads
 
-// Firebase storage setup
-const storage = getStorage(fbApp);
-const storageRef = ref(storage);
+const storage = getStorage(fbApp); // Initialize Firebase storage
+const storageRef = ref(storage); // Reference to Firebase storage
 
 // Main Upload page component
 export default function Upload() {
-  // Generate a unique ID using random words (like "red-apple-moon")
-  const id = useMemo(() => randomWords({ exactly: 3, join: "-" }), []);
-  
-  // Log the generated ID to the console (for debugging purposes)
-  useEffect(() => console.log(id), [id]);
+  const id = useMemo(() => randomWords({ exactly: 3, join: "-" }), []); // Generate a unique ID using random words
 
-  // State to check if the file has been uploaded
-  const [uploaded, setUploaded] = useState(false);
+  useEffect(() => console.log(id), [id]); // Log the generated ID (for debugging)
+
+  const [uploaded, setUploaded] = useState(false); // State to track if a file has been uploaded
 
   return (
-    // AppShell provides the layout with header and footer
     <AppShell header={<Header />} footer={<Footer />}>
-      {/* Center the content on the page */}
       <Center
         style={{
-          padding: "2rem", // Add padding around the content
-          backgroundColor: "#f5f5f5", // Light gray background color
-          minHeight: "100vh", // Make sure the content takes the full screen height
+          padding: "2rem",
+          backgroundColor: "#f5f5f5",
+          minHeight: "100vh",
         }}
       >
-        {/* Conditional rendering: If file is uploaded, show the received page, else show send page */}
-        {uploaded ? (
-          <Receive id={id} />
-        ) : (
-          <Send id={id} setUploaded={setUploaded} />
-        )}
+        {uploaded ? <Receive id={id} /> : <Send id={id} setUploaded={setUploaded} />}
       </Center>
     </AppShell>
   );
@@ -81,55 +60,44 @@ export default function Upload() {
 
 // Component for sending/uploading the file
 function Send({ id, setUploaded }) {
-  // Firebase hook for uploading files
-  const [uploadFile, uploading, snapshot, error] = useUploadFile();
+  const [uploadFile, uploading, snapshot, error] = useUploadFile(); // Firebase hook for uploading files
 
-  // Function to handle file drop/upload
   async function onDrop(files) {
     const file = files[0]; // Get the first file dropped by the user
-    // Upload the file to Firebase storage with metadata
+
     const result = await uploadFile(ref(storageRef, id), file, {
       contentDisposition: `attachment; filename="${file.name}"`,
-      customMetadata: {
-        realFileName: file.name, // Store the real name of the file
-      },
+      customMetadata: { realFileName: file.name }, // Store the real file name
     });
-    // Mark the file as uploaded
-    setUploaded(true);
+
+    setUploaded(true); // Set the uploaded state to true
   }
 
   return (
-    // Dropzone allows users to drag and drop files here
     <Dropzone
-      maxFiles={1} // Limit to only one file upload
-      maxSize={50 * 1024 * 1024} // Limit file size to 50MB
-      padding="xl" // Extra padding around the drop zone
-      onDrop={onDrop} // Trigger the onDrop function when a file is dropped
-      loading={uploading} // Show loading state when uploading
+      maxFiles={1} // Limit to one file
+      maxSize={50 * 1024 * 1024} // Maximum file size: 50MB
+      padding="xl"
+      onDrop={onDrop}
+      loading={uploading}
       styles={(theme) => ({
         root: {
-          backgroundColor: "#ffffff", // White background
-          border: `2px dashed ${theme.colors.teal[6]}`, // Dashed border in teal color
-          borderRadius: theme.radius.md, // Rounded corners for the border
-          padding: "2rem", // Padding inside the dropzone
-          minHeight: "220px", // Minimum height for the dropzone
+          backgroundColor: "#ffffff",
+          border: `2px dashed ${theme.colors.teal[6]}`,
+          borderRadius: theme.radius.md,
+          padding: "2rem",
+          minHeight: "220px",
         },
       })}
     >
-      {/* Stack the content vertically in the dropzone */}
-      <Stack
-        align="center"
-        justify="center"
-        spacing="lg"
-        style={{ pointerEvents: "none" }} // Disable interactions (since it's for display only)
-      >
-        {import.meta.env.DEV && <Text color="dimmed">{id}</Text>} {/* Show the generated ID in dev mode */}
-        <IconUpload size={48} color="#00796b" /> {/* Upload icon */}
+      <Stack align="center" justify="center" spacing="lg" style={{ pointerEvents: "none" }}>
+        {import.meta.env.DEV && <Text color="dimmed">{id}</Text>}
+        <IconUpload size={48} color="#00796b" />
         <Text size="xl" inline style={{ color: "#00796b" }}>
-          Drop a file here or click to select file {/* Instructions to user */}
+          Drop a file here or click to select file
         </Text>
         <Text size="sm" color="dimmed" inline mt={7}>
-          File size should not exceed 50MB {/* File size limitation */}
+          File size should not exceed 50MB
         </Text>
       </Stack>
     </Dropzone>
@@ -138,59 +106,49 @@ function Send({ id, setUploaded }) {
 
 // Component for receiving the uploaded file details
 function Receive({ id }) {
-  // Create the download URL based on the generated ID
-  const url = window.location.origin + "/" + id;
-  
-  // Hook to handle copying the URL to the clipboard
-  const { copied, copy } = useClipboard({ timeout: 1000 });
+  const url = window.location.origin + "/" + id; // Generate download URL
+  const { copied, copy } = useClipboard({ timeout: 1000 }); // Hook for copying URL to clipboard
 
-  // Button for copying the URL to the clipboard
   const copyButton = (
     <Button
-      onClick={() => copy(url)} // Copy the URL when the button is clicked
-      color={copied ? "green" : "teal"} // Change button color when URL is copied
-      variant="light" // Light button variant
+      onClick={() => copy(url)}
+      color={copied ? "green" : "teal"}
+      variant="light"
       styles={(theme) => ({
         root: {
-          transition: "background-color 0.3s ease", // Smooth color transition
+          transition: "background-color 0.3s ease",
           "&:hover": {
-            backgroundColor: copied
-              ? theme.colors.green[6] // Green when copied
-              : theme.colors.teal[6], // Teal otherwise
-            color: theme.white, // White text on hover
+            backgroundColor: copied ? theme.colors.green[6] : theme.colors.teal[6],
+            color: theme.white,
           },
         },
       })}
     >
-      {copied ? "Copied" : "Copy"} {/* Button text changes when URL is copied */}
+      {copied ? "Copied" : "Copy"}
     </Button>
   );
 
   return (
     <Stack spacing="lg" style={{ width: "100%", maxWidth: "400px" }}>
-      {/* Title indicating the file was successfully uploaded */}
       <Title order={2} align="center" style={{ color: "#00796b" }}>
         File uploaded&nbsp;
         <ThemeIcon radius="xl" size="xl" color="green">
-          <IconCheck /> {/* Checkmark icon indicating success */}
+          <IconCheck />
         </ThemeIcon>
       </Title>
-      {/* Read-only text input to display the download link */}
       <TextInput
         label="Download Link"
-        value={url} // Set the value to the generated URL
-        readOnly // Make it read-only so the user can't edit it
-        rightSection={copyButton} // Show the copy button on the right
-        styles={{ input: { backgroundColor: "#f5f5f5" } }} // Light background color for the input
+        value={url}
+        readOnly
+        rightSection={copyButton}
+        styles={{ input: { backgroundColor: "#f5f5f5" } }}
       />
-      {/* Display the QR code for the download link */}
       <Center>
-        <QRCode value={url} size={128} /> {/* Generate a QR code for the link */}
+        <QRCode value={url} size={128} />
       </Center>
       <Center>
         <Text color="dimmed">
-          <Anchor onClick={() => window.location.reload()}>Refresh</Anchor> this
-          page to upload a new file.
+          <Anchor onClick={() => window.location.reload()}>Refresh</Anchor> this page to upload a new file.
         </Text>
       </Center>
     </Stack>
