@@ -1,9 +1,12 @@
 // Importing necessary components from Mantine for UI and styling
 import { ColorSchemeProvider, MantineProvider } from "@mantine/core";
+
 // Hooks from Mantine to manage color scheme and store preferences
 import { useColorScheme, useLocalStorage } from "@mantine/hooks";
+
 // React Router for navigating between different pages in the app
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+
 // Import the pages (Upload and Download) that handle file uploads and downloads
 import Download from "./pages/Download"; // Page for downloading files
 import Upload from "./pages/Upload"; // Page for uploading files
